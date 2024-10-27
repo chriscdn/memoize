@@ -15,7 +15,8 @@ const Memoize = <Args extends any[], Return extends {}>(
 ) => {
     const ttl: number | undefined = options.ttl;
     const max = options.max ?? kDefaultMax;
-    const resolver = (...args: Args) => JSON.stringify(args);
+    const resolver = options.resolver ??
+        ((...args: Args) => JSON.stringify(args));
 
     const cache = new LRUCache<string, Return>({
         ttl,
@@ -41,7 +42,8 @@ const MemoizeAsync = <Args extends any[], Return extends {}>(
 ) => {
     const ttl: number | undefined = options.ttl;
     const max = options.max ?? kDefaultMax;
-    const resolver = (...args: Args) => JSON.stringify(args);
+    const resolver = options.resolver ??
+        ((...args: Args) => JSON.stringify(args));
 
     const semaphore = new Semaphore();
 
