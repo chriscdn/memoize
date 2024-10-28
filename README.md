@@ -30,40 +30,42 @@ The `MemoizeAsync` function prevents duplicate evaluations by ensuring that mult
 
 **Example (synchronous)**
 
-Start with a function:
+To memoize a function:
 
 ```ts
 const _add = (x: number, y: number) => x + y;
 const add = Memoize(_add);
 ```
 
-The `add` function will have the same interface as `_add`:
+The `add` function has the same interface as `_add`:
 
 ```ts
 const result = add(5, 7);
+// 12
 ```
 
 **Example (asynchronous)**
 
-The asynchronous case is not much different:
+The asynchronous case is similar:
 
 ```ts
 const _add = async (x: number, y: number) => x + y;
 const add = MemoizeAsync(_add);
 
 const result = await add(5, 7);
+// 12
 ```
 
 ## Options
 
-The `Memoize` and `MemoizeAsync` functions accept a second `Options` parameter. Each option is optional, but here are the defaults:
+The `Memoize` and `MemoizeAsync` functions accept an `Options` parameter to control the behaviour of the cache. Each option is optional. See the section below for the defaults:
 
 ```ts
 const options = {
   // maximum number of items in the cache
   maxSize: 1000,
 
-  // maximum number of milliseconds an item is to remain in the cache
+  // maximum number of milliseconds an item is to remain in the cache, undefined implies Infinity
   maxAge: undefined,
 
   // a function for generating the cache key (must return a String)
