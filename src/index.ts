@@ -1,26 +1,36 @@
-import { LRUCache } from "lru-cache";
 import Semaphore from "@chriscdn/promise-semaphore";
+import QuickLRU from "quick-lru";
+
+const kDefaultMaxSize = 1000;
 
 type Options<T extends any[]> = {
-    ttl?: LRUCache.Milliseconds;
-    max: number;
+    maxSize: number;
+    maxAge?: number;
     resolver: (...args: T) => string;
 };
 
-const kDefaultMax = 1000;
-
+/**
+ * Memoize a synchronous function.
+ *
+ * @template {any[]} Args
+ * @template {{}} Return
+ * @param {(...args: Args) => Return} cb
+ * @param {Partial<Options<Args>>} [options={}]
+ * @returns {Return, options?: Partial<Options<Args>>) => (...args: Args) => Return}
+ */
 const Memoize = <Args extends any[], Return extends {}>(
     cb: (...args: Args) => Return,
     options: Partial<Options<Args>> = {},
 ) => {
-    const ttl: number | undefined = options.ttl;
-    const max = options.max ?? kDefaultMax;
+    const maxAge: number | undefined = options.maxAge;
+    const maxSize = options.maxSize ?? kDefaultMaxSize;
+
     const resolver = options.resolver ??
         ((...args: Args) => JSON.stringify(args));
 
-    const cache = new LRUCache<string, Return>({
-        ttl,
-        max,
+    const cache = new QuickLRU<string, Return>({
+        maxAge,
+        maxSize,
     });
 
     return (...args: Args): Return => {
@@ -36,20 +46,33 @@ const Memoize = <Args extends any[], Return extends {}>(
     };
 };
 
+/**
+ * Memoize an asynchronous function.
+ *
+ * This differs from the sychronous case by ensuring multiple calls with the
+ * same arguments is only evaluated once. This is controlled by using a
+ * semaphore, which forces redundant calls to wait until the first call
+ * completes.
+ *
+ * @param cb
+ * @param options
+ * @returns
+ */
 const MemoizeAsync = <Args extends any[], Return extends {}>(
     cb: (...args: Args) => Promise<Return>,
     options: Partial<Options<Args>> = {},
 ) => {
-    const ttl: number | undefined = options.ttl;
-    const max = options.max ?? kDefaultMax;
+    const maxAge: number | undefined = options.maxAge;
+    const maxSize = options.maxSize ?? kDefaultMaxSize;
+
     const resolver = options.resolver ??
         ((...args: Args) => JSON.stringify(args));
 
     const semaphore = new Semaphore();
 
-    const cache = new LRUCache<string, Return>({
-        ttl,
-        max,
+    const cache = new QuickLRU<string, Return>({
+        maxAge,
+        maxSize,
     });
 
     return async (...args: Args): Promise<Return> => {
