@@ -21,9 +21,11 @@ declare const Memoize: <Args extends any[], Return extends {}>(cb: (...args: Arg
  * semaphore, which forces redundant calls to wait until the first call
  * completes.
  *
- * @param cb
- * @param options
- * @returns
+ * @template {any[]} Args
+ * @template {{}} Return
+ * @param {(...args: Args) => Promise<Return>} cb
+ * @param {Partial<Options<Args>>} [options={}]
+ * @returns {Promise<Return>, options?: Partial<Options<Args>>) => (...args: Args) => Promise<Return>}
  */
 declare const MemoizeAsync: <Args extends any[], Return extends {}>(cb: (...args: Args) => Promise<Return>, options?: Partial<Options<Args>>) => (...args: Args) => Promise<Return>;
 export { Memoize, MemoizeAsync };
