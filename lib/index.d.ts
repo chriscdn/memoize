@@ -5,14 +5,8 @@ type Options<T extends any[]> = {
 };
 /**
  * Memoize a synchronous function.
- *
- * @template {any[]} Args
- * @template {{}} Return
- * @param {(...args: Args) => Return} cb
- * @param {Partial<Options<Args>>} [options={}]
- * @returns {Return, options?: Partial<Options<Args>>) => (...args: Args) => Return}
  */
-declare const Memoize: <Args extends any[], Return extends {}>(cb: (...args: Args) => Return, options?: Partial<Options<Args>>) => (...args: Args) => Return;
+declare const Memoize: <Args extends unknown[], Return>(cb: (...args: Args) => Return, options?: Partial<Options<Args>>) => (...args: Args) => Return;
 /**
  * Memoize an asynchronous function.
  *
@@ -20,12 +14,6 @@ declare const Memoize: <Args extends any[], Return extends {}>(cb: (...args: Arg
  * same arguments is only evaluated once. This is controlled by using a
  * semaphore, which forces redundant calls to wait until the first call
  * completes.
- *
- * @template {any[]} Args
- * @template {{}} Return
- * @param {(...args: Args) => Promise<Return>} cb
- * @param {Partial<Options<Args>>} [options={}]
- * @returns {Promise<Return>, options?: Partial<Options<Args>>) => (...args: Args) => Promise<Return>}
  */
-declare const MemoizeAsync: <Args extends any[], Return extends {}>(cb: (...args: Args) => Promise<Return>, options?: Partial<Options<Args>>) => (...args: Args) => Promise<Return>;
+declare const MemoizeAsync: <Args extends unknown[], Return>(cb: (...args: Args) => Promise<Return>, options?: Partial<Options<Args>>) => (...args: Args) => Promise<Return>;
 export { Memoize, MemoizeAsync };
