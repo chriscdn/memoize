@@ -6,7 +6,7 @@
   "author": "Christopher Meyer <chris@schwiiz.org>",
   "license": "MIT",
   "type": "module",
-  "source": "src/index.ts",
+  "source": "./src/index.ts",
   "exports": {
     "types": "./lib/index.d.ts",
     "require": "./lib/memoize.cjs",
@@ -14,10 +14,10 @@
   },
   "main": "./lib/memoize.cjs",
   "module": "./lib/memoize.module.js",
-  "unpkg": "./lib/memoize.umd.js",
+  "__unpkg": "./lib/memoize.umd.js",
   "types": "./lib/index.d.ts",
   "scripts": {
-    "build": "rm -rf ./lib/ && microbundle",
+    "build": "rm -rf ./lib/ && microbundle --format modern,esm,cjs",
     "dev": "microbundle watch",
     "test": "vitest"
   },
