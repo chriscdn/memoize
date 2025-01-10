@@ -42,6 +42,7 @@ test("async", async () => {
   ]);
 
   expect(addAsyncCount).toBe(2);
+  expect(addCachedAsync.cache.size).toBe(2);
 });
 
 test("resolver", () => {

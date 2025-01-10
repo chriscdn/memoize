@@ -85,6 +85,18 @@ const options = {
 };
 ```
 
+## Cache
+
+The underlying [quick-lru](https://www.npmjs.com/package/quick-lru) instance can be accessed with the `.cache` property on the memoized function.
+
+```ts
+const add = MemoizeAsync(_add);
+const result = await add(5, 7);
+
+console.log(addCachedAsync.cache.size === 1);
+// true
+```
+
 ## Tests
 
 ```bash

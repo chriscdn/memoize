@@ -27,7 +27,7 @@ const Memoize = <Args extends unknown[], Return>(
         maxSize,
     });
 
-    return (...args: Args): Return => {
+    const memoizedFunction = (...args: Args): Return => {
         const key = resolver(...args);
 
         if (cache.has(key)) {
@@ -38,6 +38,10 @@ const Memoize = <Args extends unknown[], Return>(
             return returnValue;
         }
     };
+
+    memoizedFunction.cache = cache;
+
+    return memoizedFunction;
 };
 
 /**
@@ -65,7 +69,7 @@ const MemoizeAsync = <Args extends unknown[], Return>(
         maxSize,
     });
 
-    return async (...args: Args): Promise<Return> => {
+    const memoizedFunction = async (...args: Args): Promise<Return> => {
         const key = resolver(...args);
 
         if (cache.has(key)) {
@@ -86,6 +90,10 @@ const MemoizeAsync = <Args extends unknown[], Return>(
             }
         }
     };
+
+    memoizedFunction.cache = cache;
+
+    return memoizedFunction;
 };
 
 export { Memoize, MemoizeAsync };

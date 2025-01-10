@@ -1,3 +1,4 @@
+import QuickLRU from "quick-lru";
 type Options<T extends any[]> = {
     maxSize: number;
     maxAge?: number;
@@ -6,7 +7,10 @@ type Options<T extends any[]> = {
 /**
  * Memoize a synchronous function.
  */
-declare const Memoize: <Args extends unknown[], Return>(cb: (...args: Args) => Return, options?: Partial<Options<Args>>) => (...args: Args) => Return;
+declare const Memoize: <Args extends unknown[], Return>(cb: (...args: Args) => Return, options?: Partial<Options<Args>>) => {
+    (...args: Args): Return;
+    cache: QuickLRU<string, Return>;
+};
 /**
  * Memoize an asynchronous function.
  *
@@ -15,5 +19,8 @@ declare const Memoize: <Args extends unknown[], Return>(cb: (...args: Args) => R
  * semaphore, which forces redundant calls to wait until the first call
  * completes.
  */
-declare const MemoizeAsync: <Args extends unknown[], Return>(cb: (...args: Args) => Promise<Return>, options?: Partial<Options<Args>>) => (...args: Args) => Promise<Return>;
+declare const MemoizeAsync: <Args extends unknown[], Return>(cb: (...args: Args) => Promise<Return>, options?: Partial<Options<Args>>) => {
+    (...args: Args): Promise<Return>;
+    cache: QuickLRU<string, Return>;
+};
 export { Memoize, MemoizeAsync };
