@@ -97,10 +97,6 @@ console.log(addCachedAsync.cache.size === 1);
 // true
 ```
 
-Here is the revised version with a note about TypeScript compatibility:
-
----
-
 ## Class Methods
 
 Class methods can also be memoized, though this requires overriding the method within the constructor. When doing so, it's important to bind the method to the instance to ensure it maintains the correct context.
