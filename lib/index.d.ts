@@ -14,7 +14,7 @@ declare const Memoize: <Args extends unknown[], Return>(cb: (...args: Args) => R
 /**
  * Memoize an asynchronous function.
  *
- * This differs from the sychronous case by ensuring multiple calls with the
+ * This differs from the synchronous case by ensuring multiple calls with the
  * same arguments is only evaluated once. This is controlled by using a
  * semaphore, which forces redundant calls to wait until the first call
  * completes.

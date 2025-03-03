@@ -97,6 +97,33 @@ console.log(addCachedAsync.cache.size === 1);
 // true
 ```
 
+Here is the revised version with a note about TypeScript compatibility:
+
+---
+
+## Class Methods
+
+Class methods can also be memoized, though this requires overriding the method within the constructor. When doing so, it's important to bind the method to the instance to ensure it maintains the correct context.
+
+Consider the following example, where the `add` method is memoized by reassigning it within the constructor after binding it to the current instance. This ensures the memoized version retains access to instance properties like `count` and keeps TypeScript happy by preserving the method's type signature.
+
+```ts
+class AddClass {
+  count: number = 0;
+
+  constructor() {
+    this.add = Memoize(this.add.bind(this));
+  }
+
+  add(x: number, y: number) {
+    this.count += 1;
+    return x + y;
+  }
+}
+```
+
+Keep in mind that each instance of a class will maintain its own separate cache.
+
 ## Tests
 
 ```bash
