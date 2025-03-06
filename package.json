@@ -1,6 +1,6 @@
 {
   "name": "@chriscdn/memoize",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Memoize a synchronous or asynchronous function.",
   "repository": "https://github.com/chriscdn/memoize",
   "author": "Christopher Meyer <chris@schwiiz.org>",
