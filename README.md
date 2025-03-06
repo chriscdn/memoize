@@ -43,11 +43,17 @@ const _add = (x: number, y: number) => x + y;
 const add = Memoize(_add);
 ```
 
-The `add` function behaves identically to `_add`:
+The `add` function has the same interface as `_add`:
 
 ```ts
 const result = add(5, 7);
 // 12
+```
+
+You can also define the function in a single line:
+
+```ts
+const add = Memoize((x: number, y: number) => x + y);
 ```
 
 ### Example (Asynchronous)
@@ -65,7 +71,7 @@ const result = await add(5, 7);
 
 ## Options
 
-Both `Memoize` and `MemoizeAsync` accept an `options` parameter to control cache behavior:
+Both `Memoize` and `MemoizeAsync` accept an `options` parameter to control the cache behavior:
 
 ```ts
 const add = MemoizeAsync(_add, options);
@@ -96,13 +102,16 @@ const result = await add(5, 7);
 
 console.log(add.cache.size === 1);
 // true
+
+// Clear the cache
+add.cache.clear();
 ```
 
 ## Class Methods
 
 Class methods can also be memoized, but this requires overriding the method within the constructor. Ensure you bind the method to the instance to maintain the correct context.
 
-Here’s an example where the `add` method is memoized by reassigning it within the constructor. This approach preserves access to instance properties (like `count`) and maintains the correct method signature in TypeScript.
+Here's an example where the `add` method is memoized by reassigning it within the constructor. This approach preserves access to instance properties (like `count`) and maintains the correct method signature in TypeScript:
 
 ```ts
 class AddClass {
@@ -119,7 +128,7 @@ class AddClass {
 }
 ```
 
-Each instance of a class maintains its own separate cache.
+Each memoized method in each class instance maintains its own cache.
 
 ## Tests
 
