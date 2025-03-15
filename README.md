@@ -110,6 +110,8 @@ console.log(add.cache.size === 1);
 add.cache.clear();
 ```
 
+The values `null` and `undefined` are cached by default, but this behavior can be adjusted using the `shouldCache` option.
+
 ## Class Methods
 
 Class methods can also be memoized, but this requires overriding the method within the constructor. Ensure you bind the method to the instance to maintain the correct context.
