@@ -87,6 +87,9 @@ const options = {
   // Maximum lifespan of an item in milliseconds; undefined means items never expire
   maxAge: undefined,
 
+  // A synchronous function whether to add the returnValue to the cache.
+  shouldCache: (returnValue: Return, key: string) => true,
+
   // A synchronous function to generate cache keys (must return a string)
   resolver: (...args) => JSON.stringify(args),
 };

@@ -3,9 +3,10 @@ import QuickLRU from "quick-lru";
 
 const kDefaultMaxSize = 1000;
 
-type Options<T extends any[]> = {
+type Options<T extends any[], Return> = {
   maxSize: number;
   maxAge?: number;
+  shouldCache: (returnValue: Return, key: string) => boolean;
   resolver: (...args: T) => string;
 };
 
@@ -14,10 +15,11 @@ type Options<T extends any[]> = {
  */
 const Memoize = <Args extends unknown[], Return>(
   cb: (...args: Args) => Return,
-  options: Partial<Options<Args>> = {},
+  options: Partial<Options<Args, Return>> = {},
 ) => {
   const maxAge: number | undefined = options.maxAge;
   const maxSize = options.maxSize ?? kDefaultMaxSize;
+  const shouldCache = options.shouldCache ?? (() => true);
 
   const resolver =
     options.resolver ?? ((...args: Args) => JSON.stringify(args));
@@ -34,7 +36,9 @@ const Memoize = <Args extends unknown[], Return>(
       return cache.get(key);
     } else {
       const returnValue = cb(...args);
-      cache.set(key, returnValue);
+      if (shouldCache(returnValue, key)) {
+        cache.set(key, returnValue);
+      }
       return returnValue;
     }
   };
@@ -54,10 +58,11 @@ const Memoize = <Args extends unknown[], Return>(
  */
 const MemoizeAsync = <Args extends unknown[], Return>(
   cb: (...args: Args) => Promise<Return>,
-  options: Partial<Options<Args>> = {},
+  options: Partial<Options<Args, Return>> = {},
 ) => {
   const maxAge: number | undefined = options.maxAge;
   const maxSize = options.maxSize ?? kDefaultMaxSize;
+  const shouldCache = options.shouldCache ?? (() => true);
 
   const resolver =
     options.resolver ?? ((...args: Args) => JSON.stringify(args));
@@ -82,7 +87,11 @@ const MemoizeAsync = <Args extends unknown[], Return>(
           return cache.get(key);
         } else {
           const returnValue = await cb(...args);
-          cache.set(key, returnValue);
+
+          if (shouldCache(returnValue, key)) {
+            cache.set(key, returnValue);
+          }
+
           return returnValue;
         }
       } finally {
