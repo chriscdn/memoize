@@ -27,6 +27,6 @@
   },
   "devDependencies": {
     "microbundle": "^0.15.1",
-    "vitest": "^3.0.7"
+    "vitest": "^3.0.9"
   }
 }

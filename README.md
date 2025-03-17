@@ -81,16 +81,16 @@ Available options (with defaults):
 
 ```ts
 const options = {
-  // Maximum number of items in the cache
+  // The maximum number of items in the cache.
   maxSize: 1000,
 
-  // Maximum lifespan of an item in milliseconds; undefined means items never expire
+  // The maximum duration (in milliseconds) an item can remain in the cache. If set to `undefined`, the item will not expire due to time constraints.
   maxAge: undefined,
 
-  // A synchronous function whether to add the returnValue to the cache.
+  // A synchronous function that returns `true` or `false` to determine whether to add the returnValue to the cache.
   shouldCache: (returnValue: Return, key: string) => true,
 
-  // A synchronous function to generate cache keys (must return a string)
+  // A synchronous function to generate a cache key (must return a string).
   resolver: (...args) => JSON.stringify(args),
 };
 ```
