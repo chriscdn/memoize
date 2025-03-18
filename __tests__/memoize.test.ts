@@ -161,3 +161,38 @@ describe("ShouldCache", () => {
     expect(myFunction.cache.has(doNotCache)).toBe(false);
   });
 });
+
+describe("Do we need MemoizeAsync?", async () => {
+  const myFunction = Memoize(async (word: string) => word, {
+    resolver: (value) => value,
+  });
+
+  it("should be cached", async () => {
+    expect(await myFunction("hi")).toBe("hi");
+  });
+
+  it("should be cached", async () => {
+    expect(await myFunction("hi")).toBe("hi");
+  });
+
+  it("should be cached", async () => {
+    expect(await myFunction("hi2")).toBe("hi2");
+  });
+
+  it("size", () => expect(myFunction.cache.size).toBe(2));
+});
+
+describe("Errors", async () => {
+  const errorSync = Memoize(() => {
+    throw new Error("errorsync");
+  });
+
+  const errorASync = Memoize(async () => {
+    throw new Error("errorasync");
+  });
+
+  it("error sync", () => expect(() => errorSync()).toThrowError("errorsync"));
+
+  it("error async", () =>
+    expect(errorASync()).rejects.toThrowError("errorasync"));
+});
