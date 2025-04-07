@@ -12,4 +12,11 @@ declare const Memoize: <Args extends unknown[], Return>(cb: (...args: Args) => R
     (...args: Args): Return;
     cache: QuickLRU<string, Return>;
 };
-export { Memoize, Memoize as MemoizeAsync };
+/**
+ * @deprecated `Memoize` can be used  for asynchronous functions.
+ */
+declare const MemoizeAsync: <Args extends unknown[], Return>(cb: (...args: Args) => Return, options?: Partial<Options<Args, Return>>) => {
+    (...args: Args): Return;
+    cache: QuickLRU<string, Return>;
+};
+export { Memoize, MemoizeAsync };

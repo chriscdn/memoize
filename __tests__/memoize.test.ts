@@ -191,8 +191,11 @@ describe("Errors", async () => {
     throw new Error("errorasync");
   });
 
-  it("error sync", () => expect(() => errorSync()).toThrowError("errorsync"));
+  it("error sync", () => {
+    expect(() => errorSync()).toThrowError("errorsync");
+  });
 
-  it("error async", () =>
-    expect(errorASync()).rejects.toThrowError("errorasync"));
+  it("error async", () => {
+    expect(errorASync()).rejects.toThrowError("errorasync");
+  });
 });
