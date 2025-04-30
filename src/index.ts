@@ -20,8 +20,8 @@ const Memoize = <Args extends unknown[], Return>(
   const maxSize = options.maxSize ?? kDefaultMaxSize;
   const shouldCache = options.shouldCache ?? (() => true);
 
-  const resolver =
-    options.resolver ?? ((...args: Args) => JSON.stringify(args));
+  const resolver = options.resolver ??
+    ((...args: Args) => JSON.stringify(args));
 
   const cache = new QuickLRU<string, Return>({
     maxAge,
@@ -32,7 +32,7 @@ const Memoize = <Args extends unknown[], Return>(
     const key = resolver(...args);
 
     if (cache.has(key)) {
-      return cache.get(key);
+      return cache.get(key) as Return;
     } else {
       const returnValue = cb(...args);
       if (shouldCache(returnValue, key)) {
