@@ -162,7 +162,7 @@ describe("ShouldCache", () => {
   });
 });
 
-describe("Do we need MemoizeAsync?", async () => {
+describe("Do we need Memoize?", async () => {
   const myFunction = Memoize(async (word: string) => word, {
     resolver: (value) => value,
   });

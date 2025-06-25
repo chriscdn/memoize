@@ -92,6 +92,14 @@ const options = {
 };
 ```
 
+**Note**: You can use Memoize with both _synchronous_ and _asynchronous_ functions. However, there's a caveat when using the `shouldCache` callback with asynchronous functions: in this case, the `returnValue` passed to `shouldCache` is a `Promise`, which isn't useful for determining whether to cache the result.
+
+To handle this scenario, use `MemoizeAsync` instead. It has the same interface as `Memoize`, but is specifically designed for asynchronous functions. With `MemoizeAsync`, the resolved value is passed to `shouldCache`, allowing for more accurate caching decisions.
+
+```ts
+import { MemoizeAsync } from "@chriscdn/memoize";
+```
+
 ## Cache
 
 The underlying [quick-lru](https://www.npmjs.com/package/quick-lru) instance is accessible via the `.cache` property on the memoized function:
