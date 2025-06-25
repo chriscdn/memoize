@@ -92,9 +92,9 @@ const options = {
 };
 ```
 
-**Note**: You can use Memoize with both _synchronous_ and _asynchronous_ functions. However, there's a caveat when using the `shouldCache` callback with asynchronous functions: in this case, the `returnValue` passed to `shouldCache` is a `Promise`, which isn't useful for determining whether to cache the result.
+**Note**: `Memoize` works with both _synchronous_ and _asynchronous_ functions. However, when using the `shouldCache` callback with an asynchronous function, the `returnValue` passed to `shouldCache` is a `Promise`, which makes it difficult to determine whether the result should be cached.
 
-To handle this scenario, use `MemoizeAsync` instead. It has the same interface as `Memoize`, but is specifically designed for asynchronous functions. With `MemoizeAsync`, the resolved value is passed to `shouldCache`, allowing for more accurate caching decisions.
+To address this, use `MemoizeAsync` instead. It has the same interface as `Memoize`, but works with asynchronous functions and passes the resolved value to `shouldCache`.
 
 ```ts
 import { MemoizeAsync } from "@chriscdn/memoize";
