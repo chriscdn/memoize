@@ -92,7 +92,7 @@ const options = {
 };
 ```
 
-**Note**: `Memoize` works with both _synchronous_ and _asynchronous_ functions. However, when using the `shouldCache` callback with an asynchronous function, the `returnValue` passed to `shouldCache` is a `Promise`, which makes it effectively useless.
+**Note**: `Memoize` works with both _synchronous_ and _asynchronous_ functions. However, when using the `shouldCache` callback with an asynchronous function, the `returnValue` passed to `shouldCache` is a `Promise`. This is effectively useless since caching decisions should be based on the resolved value.
 
 To address this, use `MemoizeAsync` instead. It has the same interface as `Memoize`, but works with asynchronous functions and passes the resolved value to `shouldCache`.
 
