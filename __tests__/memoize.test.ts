@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Memoize, MemoizeAsync } from "../src/index";
+import { Memoize, MemoizeAsync } from "../lib";
 
 let addSyncCount = 0;
 let addAsyncCount = 0;
