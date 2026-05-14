@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Memoize, MemoizeAsync } from "../lib";
+import { Memoize, MemoizeAsync } from "../src";
 
 let addSyncCount = 0;
 let addAsyncCount = 0;
@@ -197,5 +197,22 @@ describe("Errors", async () => {
 
   it("error async", () => {
     expect(errorASync()).rejects.toThrowError("errorasync");
+  });
+});
+
+describe("Cache deletion", () => {
+  const add = Memoize((a: number, b: number) => a + b);
+
+  it("CacheSize", () => {
+    expect(add.cache.size).toBe(0);
+
+    const value = add(1, 2);
+    expect(value).toBe(3);
+
+    expect(add.cache.size).toBe(1);
+
+    add.delete(1, 2);
+
+    expect(add.cache.size).toBe(0);
   });
 });

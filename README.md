@@ -110,9 +110,16 @@ const result = await add(5, 7);
 
 console.log(add.cache.size === 1);
 // true
+```
 
-// Clear the cache
-add.cache.clear();
+The memoized function also exposes two convenience methods for cache management:
+
+```ts
+// Remove a specific entry by arguments
+add.delete(5, 7);
+
+// Remove all entries
+add.clear();
 ```
 
 The values `null` and `undefined` are cached by default, but this behavior can be adjusted using the `shouldCache` option.

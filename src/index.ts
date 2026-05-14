@@ -3,7 +3,7 @@ import QuickLRU from "quick-lru";
 
 const kDefaultMaxSize = 1000;
 
-type Options<T extends any[], Return> = {
+type Options<T extends unknown[], Return> = {
   maxSize: number;
   maxAge?: number;
   shouldCache: (returnValue: Return, key: string) => boolean;
@@ -17,12 +17,12 @@ const Memoize = <Args extends unknown[], Return>(
   cb: (...args: Args) => Return,
   options: Partial<Options<Args, Return>> = {},
 ) => {
-  const maxAge: number | undefined = options.maxAge;
+  const maxAge = options.maxAge;
   const maxSize = options.maxSize ?? kDefaultMaxSize;
   const shouldCache = options.shouldCache ?? (() => true);
 
-  const resolver = options.resolver ??
-    ((...args: Args) => JSON.stringify(args));
+  const resolver =
+    options.resolver ?? ((...args: Args) => JSON.stringify(args));
 
   const cache = new QuickLRU<string, Return>({
     maxAge,
@@ -44,6 +44,8 @@ const Memoize = <Args extends unknown[], Return>(
   };
 
   memoizedFunction.cache = cache;
+  memoizedFunction.delete = (...args: Args) => cache.delete(resolver(...args));
+  memoizedFunction.clear = () => cache.clear();
 
   return memoizedFunction;
 };
@@ -55,12 +57,12 @@ const MemoizeAsync = <Args extends unknown[], Return>(
   cb: (...args: Args) => Promise<Return>,
   options: Partial<Options<Args, Return>> = {},
 ) => {
-  const maxAge: number | undefined = options.maxAge;
+  const maxAge = options.maxAge;
   const maxSize = options.maxSize ?? kDefaultMaxSize;
   const shouldCache = options.shouldCache ?? (() => true);
 
-  const resolver = options.resolver ??
-    ((...args: Args) => JSON.stringify(args));
+  const resolver =
+    options.resolver ?? ((...args: Args) => JSON.stringify(args));
 
   const cache = new QuickLRU<string, Return>({
     maxAge,
@@ -90,6 +92,8 @@ const MemoizeAsync = <Args extends unknown[], Return>(
   };
 
   memoizedFunction.cache = cache;
+  memoizedFunction.delete = (...args: Args) => cache.delete(resolver(...args));
+  memoizedFunction.clear = () => cache.clear();
 
   return memoizedFunction;
 };
