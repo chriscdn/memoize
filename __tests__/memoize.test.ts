@@ -113,16 +113,16 @@ describe("Null & Undefined Cases", () => {
   });
 
   it("Undefined", () => {
-    expect(UndefinedFunc.cache.has("hello")).toBe(false);
+    expect(UndefinedFunc.has("hello")).toBe(false);
     expect(UndefinedFunc("hello")).toBe(undefined);
-    expect(UndefinedFunc.cache.has("hello")).toBe(true);
+    expect(UndefinedFunc.has("hello")).toBe(true);
     expect(UndefinedFunc("hello")).toBe(undefined);
   });
 
   it("Null", () => {
-    expect(NullFunc.cache.has("hello")).toBe(false);
+    expect(NullFunc.has("hello")).toBe(false);
     expect(NullFunc("hello")).toBe(undefined);
-    expect(NullFunc.cache.has("hello")).toBe(true);
+    expect(NullFunc.has("hello")).toBe(true);
     expect(NullFunc("hello")).toBe(undefined);
   });
 });
@@ -154,11 +154,11 @@ describe("ShouldCache", () => {
   myFunction(doNotCache);
 
   it("should be cached", () => {
-    expect(myFunction.cache.has("hi")).toBe(true);
+    expect(myFunction.has("hi")).toBe(true);
   });
 
   it("should not be cached", () => {
-    expect(myFunction.cache.has(doNotCache)).toBe(false);
+    expect(myFunction.has(doNotCache)).toBe(false);
   });
 });
 

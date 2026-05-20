@@ -1,6 +1,21 @@
 import { Semaphore } from "@chriscdn/promise-semaphore";
 import QuickLRU from "quick-lru";
 
+type CacheLike<K, V> = Pick<
+  QuickLRU<K, V>,
+  | "clear"
+  | "delete"
+  | "evict"
+  | "expiresIn"
+  | "get"
+  | "has"
+  | "maxAge"
+  | "maxSize"
+  | "peek"
+  | "resize"
+  | "size"
+>;
+
 const kDefaultMaxSize = 1000;
 
 type Options<T extends unknown[], Return> = {
@@ -43,9 +58,13 @@ const Memoize = <Args extends unknown[], Return>(
     }
   };
 
-  memoizedFunction.cache = cache;
-  memoizedFunction.delete = (...args: Args) => cache.delete(resolver(...args));
+  memoizedFunction.cache = cache as CacheLike<string, Return>;
+
   memoizedFunction.clear = () => cache.clear();
+  memoizedFunction.delete = (...args: Args) => cache.delete(resolver(...args));
+  memoizedFunction.expiresIn = (...args: Args) =>
+    cache.expiresIn(resolver(...args));
+  memoizedFunction.has = (...args: Args) => cache.has(resolver(...args));
 
   return memoizedFunction;
 };
@@ -91,9 +110,13 @@ const MemoizeAsync = <Args extends unknown[], Return>(
     }
   };
 
-  memoizedFunction.cache = cache;
-  memoizedFunction.delete = (...args: Args) => cache.delete(resolver(...args));
+  memoizedFunction.cache = cache as CacheLike<string, Return>;
+
   memoizedFunction.clear = () => cache.clear();
+  memoizedFunction.delete = (...args: Args) => cache.delete(resolver(...args));
+  memoizedFunction.expiresIn = (...args: Args) =>
+    cache.expiresIn(resolver(...args));
+  memoizedFunction.has = (...args: Args) => cache.has(resolver(...args));
 
   return memoizedFunction;
 };
