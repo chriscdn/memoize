@@ -51,6 +51,15 @@ const Memoize = <Args extends unknown[], Return>(
       return cache.get(key) as Return;
     } else {
       const returnValue = cb(...args);
+
+      // what if returnValue is a promise that rejects?
+      //  if (returnValue instanceof Promise) {
+      // cache.set(key, returnValue);
+
+      // returnValue.catch(() => {
+      //   cache.delete(key);
+      // });
+
       if (shouldCache(returnValue, key)) {
         cache.set(key, returnValue);
       }
