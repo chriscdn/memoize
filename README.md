@@ -24,7 +24,7 @@ import { Memoize } from "@chriscdn/memoize";
 
 The **`Memoize`** function can be used to memoize a _synchronous_ or _asynchronous_ function.
 
-The cache is powered by [quick-lru](https://www.npmjs.com/package/quick-lru). Each call to `Memoize` creates a new cache instance.
+The cache is backed by [quick-lru](https://www.npmjs.com/package/quick-lru). Each call to `Memoize` creates a new cache instance.
 
 The `Memoize` function prevents duplicate evaluations by ensuring that multiple calls with the same cache key are processed only once. This includes asynchronous functions.
 
@@ -68,7 +68,7 @@ const result = await add(5, 7);
 
 ## Options
 
-The `Memoize` function accepts an `options` parameter to control the cache behavior:
+The `Memoize` and `MemoizeAsync` function accepts an `options` parameter to control the cache behavior:
 
 ```ts
 const add = Memoize(_add, options);
