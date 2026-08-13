@@ -28,6 +28,8 @@ const asyncThrowError = MemoizeAsync(async (x: number, y: number) => {
   }
 });
 
+const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 describe("Memoization", () => {
   it("sync", async () => {
     const addCached = Memoize(add);
@@ -214,5 +216,35 @@ describe("Cache deletion", () => {
     add.delete(1, 2);
 
     expect(add.cache.size).toBe(0);
+  });
+});
+
+describe("ttl", () => {
+  const add = Memoize((a: number, b: number) => a + b, {
+    maxAge: 500,
+    ttl: () => 1_000,
+  });
+
+  it("CacheSize", async () => {
+    add(1, 2);
+
+    expect(add.has(1, 2)).toBe(true);
+    await pause(700);
+    expect(add.has(1, 2)).toBe(true);
+  });
+});
+
+describe("set", () => {
+  const add = Memoize((a: number, b: number) => a + b, {
+    maxAge: 500,
+    ttl: (value) => 1_000,
+  });
+
+  it("Can we override a cache value?", async () => {
+    expect(add(1, 2)).toBe(3);
+
+    add.set([1, 2], 4);
+
+    expect(add(1, 2)).toBe(4);
   });
 });

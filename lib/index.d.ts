@@ -5,6 +5,7 @@ type Options<T extends unknown[], Return> = {
   maxSize: number;
   maxAge?: number;
   shouldCache: (returnValue: Return, key: string) => boolean;
+  ttl?: (value: Return, key: string) => number;
   resolver: (...args: T) => string;
 };
 /**
@@ -17,6 +18,9 @@ declare const Memoize: <Args extends unknown[], Return>(cb: (...args: Args) => R
   delete: (...args: Args) => boolean;
   expiresIn: (...args: Args) => number | undefined;
   has: (...args: Args) => boolean;
+  set: (args: Args, value: Return, options?: {
+    maxAge: number;
+  }) => QuickLRU<string, Return>;
 };
 /**
  * Memoize an asynchronous function.
@@ -28,6 +32,9 @@ declare const MemoizeAsync: <Args extends unknown[], Return>(cb: (...args: Args)
   delete: (...args: Args) => boolean;
   expiresIn: (...args: Args) => number | undefined;
   has: (...args: Args) => boolean;
+  set: (args: Args, value: Return, options?: {
+    maxAge: number;
+  }) => QuickLRU<string, Return>;
 };
 //#endregion
 export { Memoize, MemoizeAsync };

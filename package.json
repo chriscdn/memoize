@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "watch": "yarn build --watch",
+    "watch": "tsdown --watch",
     "test": "vitest"
   },
   "dependencies": {

@@ -22,6 +22,7 @@ type Options<T extends unknown[], Return> = {
   maxSize: number;
   maxAge?: number;
   shouldCache: (returnValue: Return, key: string) => boolean;
+  ttl?: (value: Return, key: string) => number;
   resolver: (...args: T) => string;
 };
 
@@ -35,6 +36,7 @@ const Memoize = <Args extends unknown[], Return>(
   const maxAge = options.maxAge;
   const maxSize = options.maxSize ?? kDefaultMaxSize;
   const shouldCache = options.shouldCache ?? (() => true);
+  const ttl = options.ttl ?? (() => undefined);
 
   const resolver =
     options.resolver ?? ((...args: Args) => JSON.stringify(args));
@@ -52,16 +54,10 @@ const Memoize = <Args extends unknown[], Return>(
     } else {
       const returnValue = cb(...args);
 
-      // what if returnValue is a promise that rejects?
-      //  if (returnValue instanceof Promise) {
-      // cache.set(key, returnValue);
-
-      // returnValue.catch(() => {
-      //   cache.delete(key);
-      // });
-
       if (shouldCache(returnValue, key)) {
-        cache.set(key, returnValue);
+        cache.set(key, returnValue, {
+          maxAge: ttl(returnValue, key),
+        });
       }
       return returnValue;
     }
@@ -74,6 +70,11 @@ const Memoize = <Args extends unknown[], Return>(
   memoizedFunction.expiresIn = (...args: Args) =>
     cache.expiresIn(resolver(...args));
   memoizedFunction.has = (...args: Args) => cache.has(resolver(...args));
+  memoizedFunction.set = (
+    args: Args,
+    value: Return,
+    options?: { maxAge: number },
+  ) => cache.set(resolver(...args), value, options);
 
   return memoizedFunction;
 };
@@ -88,6 +89,7 @@ const MemoizeAsync = <Args extends unknown[], Return>(
   const maxAge = options.maxAge;
   const maxSize = options.maxSize ?? kDefaultMaxSize;
   const shouldCache = options.shouldCache ?? (() => true);
+  const ttl = options.ttl ?? (() => maxAge);
 
   const resolver =
     options.resolver ?? ((...args: Args) => JSON.stringify(args));
@@ -110,7 +112,9 @@ const MemoizeAsync = <Args extends unknown[], Return>(
       } else {
         const returnValue = await cb(...args);
         if (shouldCache(returnValue, key)) {
-          cache.set(key, returnValue);
+          cache.set(key, returnValue, {
+            maxAge: ttl(returnValue, key),
+          });
         }
         return returnValue;
       }
@@ -126,6 +130,11 @@ const MemoizeAsync = <Args extends unknown[], Return>(
   memoizedFunction.expiresIn = (...args: Args) =>
     cache.expiresIn(resolver(...args));
   memoizedFunction.has = (...args: Args) => cache.has(resolver(...args));
+  memoizedFunction.set = (
+    args: Args,
+    value: Return,
+    options?: { maxAge: number },
+  ) => cache.set(resolver(...args), value, options);
 
   return memoizedFunction;
 };
