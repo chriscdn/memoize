@@ -74,7 +74,9 @@ const Memoize = <Args extends unknown[], Return>(
     args: Args,
     value: Return,
     options?: { maxAge: number },
-  ) => cache.set(resolver(...args), value, options);
+  ) => {
+    cache.set(resolver(...args), value, options);
+  };
 
   return memoizedFunction;
 };
@@ -134,7 +136,9 @@ const MemoizeAsync = <Args extends unknown[], Return>(
     args: Args,
     value: Return,
     options?: { maxAge: number },
-  ) => cache.set(resolver(...args), value, options);
+  ) => {
+    cache.set(resolver(...args), value, options);
+  };
 
   return memoizedFunction;
 };

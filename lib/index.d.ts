@@ -20,7 +20,7 @@ declare const Memoize: <Args extends unknown[], Return>(cb: (...args: Args) => R
   has: (...args: Args) => boolean;
   set: (args: Args, value: Return, options?: {
     maxAge: number;
-  }) => QuickLRU<string, Return>;
+  }) => void;
 };
 /**
  * Memoize an asynchronous function.
@@ -34,7 +34,7 @@ declare const MemoizeAsync: <Args extends unknown[], Return>(cb: (...args: Args)
   has: (...args: Args) => boolean;
   set: (args: Args, value: Return, options?: {
     maxAge: number;
-  }) => QuickLRU<string, Return>;
+  }) => void;
 };
 //#endregion
 export { Memoize, MemoizeAsync };
