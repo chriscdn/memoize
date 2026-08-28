@@ -284,3 +284,31 @@ describe("background", () => {
     await expect(callCount).toBe(2);
   });
 });
+
+describe("deduplication", () => {
+  let callCount = 0;
+
+  const m_add_bg = MemoizeAsync(
+    async (a: number, b: number) => {
+      callCount = callCount + 1;
+      return a + b;
+    },
+    {
+      resolver: (a, b) => JSON.stringify([a, b].sort()),
+    },
+  );
+
+  it("background test", async () => {
+    const results = await Promise.all([
+      m_add_bg(1, 2),
+      m_add_bg(1, 2),
+      m_add_bg(1, 2),
+      m_add_bg(1, 2),
+      m_add_bg(1, 2),
+      m_add_bg(2, 1),
+      m_add_bg(10, 20),
+    ]);
+
+    expect(callCount).toBe(2);
+  });
+});
