@@ -19,7 +19,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@chriscdn/promise-semaphore": "^4.0.0",
+    "@chriscdn/type-guards": "^0.0.3",
     "quick-lru": "^7.3.0"
   },
   "devDependencies": {

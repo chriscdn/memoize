@@ -110,22 +110,22 @@ describe("Null & Undefined Cases", () => {
     resolver: (key) => key,
   });
 
-  const NullFunc = Memoize((key: string) => undefined, {
+  const NullFunc = Memoize((key: string) => null, {
     resolver: (key) => key,
   });
 
   it("Undefined", () => {
     expect(UndefinedFunc.has("hello")).toBe(false);
     expect(UndefinedFunc("hello")).toBe(undefined);
-    expect(UndefinedFunc.has("hello")).toBe(true);
+    expect(UndefinedFunc.has("hello")).toBe(false);
     expect(UndefinedFunc("hello")).toBe(undefined);
   });
 
   it("Null", () => {
     expect(NullFunc.has("hello")).toBe(false);
-    expect(NullFunc("hello")).toBe(undefined);
+    expect(NullFunc("hello")).toBe(null);
     expect(NullFunc.has("hello")).toBe(true);
-    expect(NullFunc("hello")).toBe(undefined);
+    expect(NullFunc("hello")).toBe(null);
   });
 });
 
@@ -246,5 +246,41 @@ describe("set", () => {
     add.set([1, 2], 4);
 
     expect(add(1, 2)).toBe(4);
+  });
+});
+
+describe("background", () => {
+  let callCount = 0;
+
+  const m_add_bg = MemoizeAsync(
+    async (a: number, b: number) => {
+      callCount = callCount + 1;
+      return a + b;
+    },
+    {
+      ttl: () => 1000,
+      refreshWhen: (ttl) => {
+        return ttl < 200;
+      },
+    },
+  );
+
+  it("background test", async () => {
+    // initial call, should fire
+    await expect(m_add_bg(1, 2)).resolves.toBe(3);
+    await expect(callCount).toBe(1);
+
+    // should fetch cached result
+    await expect(m_add_bg(1, 2)).resolves.toBe(3);
+    await expect(callCount).toBe(1);
+
+    await pause(900);
+
+    // the idea here is to trigger a bg refresh
+    await expect(m_add_bg(1, 2)).resolves.toBe(3);
+
+    await pause(1);
+
+    await expect(callCount).toBe(2);
   });
 });

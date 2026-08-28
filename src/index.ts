@@ -1,4 +1,11 @@
-import { Semaphore } from "@chriscdn/promise-semaphore";
+import {
+  isDefined,
+  isDefinedOrNull,
+  isNullish,
+  isNumber,
+  isUndefined,
+} from "@chriscdn/type-guards";
+
 import QuickLRU from "quick-lru";
 
 type CacheLike<K, V> = Pick<
@@ -16,14 +23,27 @@ type CacheLike<K, V> = Pick<
   | "size"
 >;
 
-const kDefaultMaxSize = 1000;
+const DEFAULT_CACHE_MAX_SIZE = 1000;
 
-type Options<T extends unknown[], Return> = {
+// type Options<T extends unknown[], Return> = {
+//   maxSize: number;
+//   maxAge?: number;
+//   shouldCache: (returnValue: Return, key: string) => boolean;
+//   refreshWhen?: (ttl: number, [...args]: T, value: Return) => boolean;
+//   ttl?: (value: Return, key: string) => number | null | undefined;
+//   resolver: (...args: T) => string;
+// };
+
+type Options<Args extends unknown[], Return> = {
   maxSize: number;
   maxAge?: number;
   shouldCache: (returnValue: Return, key: string) => boolean;
-  ttl?: (value: Return, key: string) => number;
-  resolver: (...args: T) => string;
+  ttl?: (value: Return, key: string) => number | null | undefined;
+  resolver: (...args: Args) => string;
+};
+
+type OptionsAsync<Args extends unknown[], Return> = Options<Args, Return> & {
+  refreshWhen?: (ttl: number, args: Args, value: Return) => boolean;
 };
 
 /**
@@ -34,9 +54,9 @@ const Memoize = <Args extends unknown[], Return>(
   options: Partial<Options<Args, Return>> = {},
 ) => {
   const maxAge = options.maxAge;
-  const maxSize = options.maxSize ?? kDefaultMaxSize;
+  const maxSize = options.maxSize ?? DEFAULT_CACHE_MAX_SIZE;
   const shouldCache = options.shouldCache ?? (() => true);
-  const ttl = options.ttl ?? (() => undefined);
+  const ttl = options.ttl ?? (() => null);
 
   const resolver =
     options.resolver ?? ((...args: Args) => JSON.stringify(args));
@@ -53,12 +73,18 @@ const Memoize = <Args extends unknown[], Return>(
       return cache.get(key) as Return;
     } else {
       const returnValue = cb(...args);
+      const ttlResults = ttl(returnValue, key);
 
-      if (shouldCache(returnValue, key)) {
-        cache.set(key, returnValue, {
-          maxAge: ttl(returnValue, key),
-        });
+      if (isUndefined(returnValue)) {
+        // do nothing
+      } else if (!shouldCache(returnValue, key)) {
+        // do nothing
+      } else if (isNumber(ttlResults) && ttlResults > 0) {
+        cache.set(key, returnValue, { maxAge: ttlResults });
+      } else if (isNullish(ttlResults)) {
+        cache.set(key, returnValue);
       }
+
       return returnValue;
     }
   };
@@ -86,13 +112,13 @@ const Memoize = <Args extends unknown[], Return>(
  */
 const MemoizeAsync = <Args extends unknown[], Return>(
   cb: (...args: Args) => Promise<Return>,
-  options: Partial<Options<Args, Return>> = {},
+  options: Partial<OptionsAsync<Args, Return>> = {},
 ) => {
   const maxAge = options.maxAge;
-  const maxSize = options.maxSize ?? kDefaultMaxSize;
+  const maxSize = options.maxSize ?? DEFAULT_CACHE_MAX_SIZE;
   const shouldCache = options.shouldCache ?? (() => true);
-  const ttl = options.ttl ?? (() => maxAge);
-
+  const refreshWhen = options.refreshWhen ?? (() => false);
+  const ttl = options.ttl ?? (() => null);
   const resolver =
     options.resolver ?? ((...args: Args) => JSON.stringify(args));
 
@@ -101,27 +127,63 @@ const MemoizeAsync = <Args extends unknown[], Return>(
     maxSize,
   });
 
-  const semaphore = new Semaphore();
+  const inFlight = new Map<string, Promise<Return>>();
+
+  const fetchAndCache = (key: string, args: Args): Promise<Return> => {
+    const existing = inFlight.get(key);
+
+    if (isDefined(existing)) {
+      return existing;
+    } else {
+      const promise = (async () => {
+        const value = await cb(...args);
+
+        if (isUndefined(value)) {
+          return value;
+        } else {
+          const ttlResults = ttl(value, key);
+
+          if (!shouldCache(value, key)) {
+            // do nothing
+          } else if (isNumber(ttlResults) && ttlResults > 0) {
+            cache.set(key, value, { maxAge: ttlResults });
+          } else if (isNullish(ttlResults)) {
+            cache.set(key, value);
+          }
+
+          return value;
+        }
+      })();
+
+      inFlight.set(key, promise);
+
+      // The .catch() prevents an unhandled rejection from the promise created
+      // by .finally(). The original promise still propagates its rejection.
+      promise.finally(() => inFlight.delete(key)).catch(() => null);
+
+      return promise;
+    }
+  };
 
   const memoizedFunction = async (...args: Args): Promise<Return> => {
     const key = resolver(...args);
 
-    try {
-      await semaphore.acquire(key);
+    const cachedValue = cache.get(key);
+    const cachedTTL = cache.expiresIn(key);
 
-      if (cache.has(key)) {
-        return cache.get(key) as Return;
-      } else {
-        const returnValue = await cb(...args);
-        if (shouldCache(returnValue, key)) {
-          cache.set(key, returnValue, {
-            maxAge: ttl(returnValue, key),
-          });
-        }
-        return returnValue;
+    const hasCachedValue = isDefinedOrNull(cachedValue);
+
+    // let value: Return | undefined = isDefinedOrNull(_value) ? _value : undefined;
+
+    if (hasCachedValue) {
+      // Background refresh
+      if (isNumber(cachedTTL) && refreshWhen(cachedTTL, args, cachedValue)) {
+        fetchAndCache(key, args).catch(() => null);
       }
-    } finally {
-      semaphore.release(key);
+
+      return cachedValue;
+    } else {
+      return await fetchAndCache(key, args);
     }
   };
 
