@@ -25,15 +25,6 @@ type CacheLike<K, V> = Pick<
 
 const DEFAULT_CACHE_MAX_SIZE = 1000;
 
-// type Options<T extends unknown[], Return> = {
-//   maxSize: number;
-//   maxAge?: number;
-//   shouldCache: (returnValue: Return, key: string) => boolean;
-//   refreshWhen?: (ttl: number, [...args]: T, value: Return) => boolean;
-//   ttl?: (value: Return, key: string) => number | null | undefined;
-//   resolver: (...args: T) => string;
-// };
-
 type Options<Args extends unknown[], Return> = {
   maxSize: number;
   maxAge?: number;
