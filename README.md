@@ -10,6 +10,10 @@ Using npm:
 npm install @chriscdn/memoize
 ```
 
+## Upgrading from v3 to v4
+
+**Breaking Change**: As of v4, the `shouldCache` and `ttl` callbacks now accept an object containing `args`, `value`, and `key`. The `refreshWhen` callback now accepts an object containing `args`, `value`, `key`, and `ttl`.
+
 ## Upgrading from v2 to v3
 
 **Breaking Change**: As of v3, `null` return values are now cached.
@@ -88,31 +92,44 @@ const options = {
 
   // A synchronous function that determines whether the return value
   // should be added to the cache.
-  shouldCache: (returnValue: Return, key: string) => true,
+  shouldCache: ({
+    value,
+    key,
+    args,
+  }: {
+    value: Return;
+    key: string;
+    args: Args;
+  }) => true,
 
   // A synchronous function that determines the cache duration in milliseconds.
   //
   // A positive number uses that duration.
   // null or undefined uses the configured maxAge.
   // 0 or a negative number does not cache the value.
-  ttl: (value: Return, key: string) => null,
+  ttl: ({ value, key, args }: { value: Return; key: string; args: Args }) =>
+    null,
 
   // A synchronous function to generate a cache key.
   resolver: (...args) => JSON.stringify(args),
 };
 ```
 
+The `shouldCache` and `ttl` options receive an object containing the resolved `value`, cache `key`, and original function `args`.
+
 The `shouldCache` option can be used to conditionally skip caching based on a resolved value.
+
+The `ttl` option can be used to determine the cache duration based on the resolved value, cache key, and original function arguments.
 
 The `refreshWhen` option is available only with `MemoizeAsync`:
 
 ```ts
 const add = MemoizeAsync(_add, {
-  refreshWhen: (ttl, args, value) => ttl < 10000,
+  refreshWhen: ({ ttl, args, value, key }) => ttl < 10000,
 });
 ```
 
-When `refreshWhen` returns `true` for a cached value, `MemoizeAsync` refreshes the value in the background while returning the existing cached value immediately.
+When `refreshWhen` returns `true` for a cached value, `MemoizeAsync` refreshes the value in the background while returning the existing cached value immediately. The callback receives the remaining `ttl`, the original `args`, the cached `value`, and the cache `key`.
 
 ## Cache
 
@@ -178,9 +195,8 @@ Run the tests using:
 
 ```bash
 pnpm test
-
 ```
 
 ## License
 
-[MIT](https://www.google.com/search?q=LICENSE)
+[MIT](LICENSE)

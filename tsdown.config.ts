@@ -7,6 +7,6 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   outDir: "lib",
-  target: "es2022",
+  // target: "es2022",
   platform: "neutral",
 });

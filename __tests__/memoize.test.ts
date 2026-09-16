@@ -148,7 +148,7 @@ describe("ShouldCache", () => {
   const doNotCache = "do not cache";
 
   const myFunction = Memoize((word: string) => word, {
-    shouldCache: (value) => value !== doNotCache,
+    shouldCache: ({ value }) => value !== doNotCache,
     resolver: (value) => value,
   });
 
@@ -193,12 +193,12 @@ describe("Errors", async () => {
     throw new Error("errorasync");
   });
 
-  it("error sync", () => {
-    expect(() => errorSync()).toThrowError("errorsync");
+  it("error sync", async () => {
+    await expect(() => errorSync()).toThrow("errorsync");
   });
 
-  it("error async", () => {
-    expect(errorASync()).rejects.toThrowError("errorasync");
+  it("error async", async () => {
+    await expect(errorASync()).rejects.toThrow("errorasync");
   });
 });
 
@@ -259,7 +259,7 @@ describe("background", () => {
     },
     {
       ttl: () => 1000,
-      refreshWhen: (ttl) => {
+      refreshWhen: ({ ttl }) => {
         return ttl < 200;
       },
     },

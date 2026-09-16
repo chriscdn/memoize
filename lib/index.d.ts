@@ -4,12 +4,25 @@ type CacheLike<K, V> = Pick<QuickLRU<K, V>, "clear" | "delete" | "evict" | "expi
 type Options<Args extends unknown[], Return> = {
   maxSize: number;
   maxAge?: number;
-  shouldCache: (returnValue: Return, key: string) => boolean;
-  ttl?: (value: Return, key: string) => number | null | undefined;
+  shouldCache: ({ value, key, args }: {
+    value: Return;
+    key: string;
+    args: Args;
+  }) => boolean;
+  ttl?: ({ value, key, args }: {
+    value: Return;
+    key: string;
+    args: Args;
+  }) => number | null | undefined;
   resolver: (...args: Args) => string;
 };
 type OptionsAsync<Args extends unknown[], Return> = Options<Args, Return> & {
-  refreshWhen?: (ttl: number, args: Args, value: Return) => boolean;
+  refreshWhen?: ({ ttl, args, value, key }: {
+    ttl: number;
+    key: string;
+    args: Args;
+    value: Return;
+  }) => boolean;
 };
 /**
  * Memoize a synchronous function.

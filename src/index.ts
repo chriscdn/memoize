@@ -28,13 +28,42 @@ const DEFAULT_CACHE_MAX_SIZE = 1000;
 type Options<Args extends unknown[], Return> = {
   maxSize: number;
   maxAge?: number;
-  shouldCache: (returnValue: Return, key: string) => boolean;
-  ttl?: (value: Return, key: string) => number | null | undefined;
+
+  shouldCache: ({
+    value,
+    key,
+    args,
+  }: {
+    value: Return;
+    key: string;
+    args: Args;
+  }) => boolean;
+
+  ttl?: ({
+    value,
+    key,
+    args,
+  }: {
+    value: Return;
+    key: string;
+    args: Args;
+  }) => number | null | undefined;
+
   resolver: (...args: Args) => string;
 };
 
 type OptionsAsync<Args extends unknown[], Return> = Options<Args, Return> & {
-  refreshWhen?: (ttl: number, args: Args, value: Return) => boolean;
+  refreshWhen?: ({
+    ttl,
+    args,
+    value,
+    key,
+  }: {
+    ttl: number;
+    key: string;
+    args: Args;
+    value: Return;
+  }) => boolean;
 };
 
 /**
@@ -64,11 +93,11 @@ const Memoize = <Args extends unknown[], Return>(
       return cache.get(key) as Return;
     } else {
       const returnValue = cb(...args);
-      const ttlResults = ttl(returnValue, key);
+      const ttlResults = ttl({ value: returnValue, key, args });
 
       if (isUndefined(returnValue)) {
         // do nothing
-      } else if (!shouldCache(returnValue, key)) {
+      } else if (!shouldCache({ value: returnValue, key, args })) {
         // do nothing
       } else if (isNumber(ttlResults) && ttlResults > 0) {
         cache.set(key, returnValue, { maxAge: ttlResults });
@@ -132,9 +161,9 @@ const MemoizeAsync = <Args extends unknown[], Return>(
         if (isUndefined(value)) {
           return value;
         } else {
-          const ttlResults = ttl(value, key);
+          const ttlResults = ttl({ value, key, args });
 
-          if (!shouldCache(value, key)) {
+          if (!shouldCache({ value, key, args })) {
             // do nothing
           } else if (isNumber(ttlResults) && ttlResults > 0) {
             cache.set(key, value, { maxAge: ttlResults });
@@ -164,11 +193,12 @@ const MemoizeAsync = <Args extends unknown[], Return>(
 
     const hasCachedValue = isDefinedOrNull(cachedValue);
 
-    // let value: Return | undefined = isDefinedOrNull(_value) ? _value : undefined;
-
     if (hasCachedValue) {
       // Background refresh
-      if (isNumber(cachedTTL) && refreshWhen(cachedTTL, args, cachedValue)) {
+      if (
+        isNumber(cachedTTL) &&
+        refreshWhen({ ttl: cachedTTL, args, value: cachedValue, key })
+      ) {
         fetchAndCache(key, args).catch(() => null);
       }
 
